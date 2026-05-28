@@ -465,21 +465,28 @@ static void init_functions() {
             FNS4[0].address,
             (void*)hook_is_solitary_blocked
         );
-        Log::logger->log(LOG, "[Hyprtasking] Attempting hook {}", FNS4[0].signature);
         bool solitary_hooked = false;
-        try {
-            solitary_hooked = is_solitary_blocked_hook->hook();
-        } catch (const std::exception& err) {
+        if (is_solitary_blocked_hook == nullptr) {
             Log::logger->log(
                 ERR,
-                "[Hyprtasking] isSolitaryBlocked hook failed: {}",
-                err.what()
+                "[Hyprtasking] Failed to create isSolitaryBlocked hook; skipping"
             );
-        } catch (...) {
-            Log::logger->log(
-                ERR,
-                "[Hyprtasking] isSolitaryBlocked hook failed with unknown error"
-            );
+        } else {
+            Log::logger->log(LOG, "[Hyprtasking] Attempting hook {}", FNS4[0].signature);
+            try {
+                solitary_hooked = is_solitary_blocked_hook->hook();
+            } catch (const std::exception& err) {
+                Log::logger->log(
+                    ERR,
+                    "[Hyprtasking] isSolitaryBlocked hook failed: {}",
+                    err.what()
+                );
+            } catch (...) {
+                Log::logger->log(
+                    ERR,
+                    "[Hyprtasking] isSolitaryBlocked hook failed with unknown error"
+                );
+            }
         }
         if (!solitary_hooked) {
             Log::logger->log(
