@@ -457,13 +457,38 @@ static void init_functions() {
     render_window = FNS3[0].address;
 
     static auto FNS4 = HyprlandAPI::findFunctionsByName(PHANDLE, "isSolitaryBlocked");
-    if (FNS4.empty())
-        fail_exit("No isSolitaryBlocked");
-
-    is_solitary_blocked_hook =
-        HyprlandAPI::createFunctionHook(PHANDLE, FNS4[0].address, (void*)hook_is_solitary_blocked);
-    Log::logger->log(LOG, "[Hyprtasking] Attempting hook {}", FNS4[0].signature);
-    success = is_solitary_blocked_hook->hook() && success;
+    if (FNS4.empty()) {
+        Log::logger->log(ERR, "[Hyprtasking] No isSolitaryBlocked; skipping hook");
+    } else {
+        is_solitary_blocked_hook = HyprlandAPI::createFunctionHook(
+            PHANDLE,
+            FNS4[0].address,
+            (void*)hook_is_solitary_blocked
+        );
+        Log::logger->log(LOG, "[Hyprtasking] Attempting hook {}", FNS4[0].signature);
+        bool solitary_hooked = false;
+        try {
+            solitary_hooked = is_solitary_blocked_hook->hook();
+        } catch (const std::exception& err) {
+            Log::logger->log(
+                ERR,
+                "[Hyprtasking] isSolitaryBlocked hook failed: {}",
+                err.what()
+            );
+        } catch (...) {
+            Log::logger->log(
+                ERR,
+                "[Hyprtasking] isSolitaryBlocked hook failed with unknown error"
+            );
+        }
+        if (!solitary_hooked) {
+            Log::logger->log(
+                ERR,
+                "[Hyprtasking] isSolitaryBlocked hook disabled; continuing without it"
+            );
+            is_solitary_blocked_hook = nullptr;
+        }
+    }
 
     if (!success)
         fail_exit("Failed initializing hooks");
