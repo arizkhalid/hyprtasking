@@ -291,7 +291,7 @@ static uint32_t hook_is_solitary_blocked(void* thisptr, bool full) {
     PHTVIEW view = ht_manager->get_view_from_cursor();
     if (view == nullptr) {
         Log::logger->log(Log::ERR, "[Hyprtasking] View is nullptr in hook_is_solitary_blocked");
-        (*(origIsSolitaryBlocked)is_solitary_blocked_hook->m_original)(thisptr, full);
+        return (*(origIsSolitaryBlocked)is_solitary_blocked_hook->m_original)(thisptr, full);
     }
 
     if (view->active || view->navigating) {
