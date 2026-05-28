@@ -288,7 +288,11 @@ static bool hook_should_render_window(void* thisptr, PHLWINDOW window, PHLMONITO
 }
 
 static uint32_t hook_is_solitary_blocked(void* thisptr, bool full) {
-    if (ht_manager == nullptr || ht_manager->views.empty()) {
+    if (ht_manager == nullptr) {
+        return (*(origIsSolitaryBlocked)is_solitary_blocked_hook->m_original)(thisptr, full);
+    }
+
+    if (ht_manager->views.empty()) {
         return (*(origIsSolitaryBlocked)is_solitary_blocked_hook->m_original)(thisptr, full);
     }
 
